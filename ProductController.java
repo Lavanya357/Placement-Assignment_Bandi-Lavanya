@@ -1,68 +1,69 @@
-package ineuron.SpringBoot06;
+package ineuron.SpringBoot09;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
-@RestController
-@RequestMapping("/api/products")
+import java.util.List;
 
+@RestController
+@RequestMapping("/products")
 public class ProductController 
 {
-	private final ProductRepository productRepository;
+	private final ProductService productService;
 
     @Autowired
-    public ProductController(ProductRepository productRepository) 
+    public ProductController(ProductService productService) 
     {
-        this.productRepository = productRepository;
+        this.productService = productService;
     }
 
     @GetMapping
-    public Iterable<Product> getAllProducts() 
+    public List<Product> getAllProducts() 
     {
-        return productRepository.findAll();
+        return productService.getAllProducts();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Product> getProductById(@PathVariable Long id) 
-    {
-        Optional<Product> optionalProduct = productRepository.findById(id);
-        return optionalProduct.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
-    }
-
-    @PostMapping
-    public ResponseEntity<Product> createProduct(@RequestBody Product product) 
-    {
-        Product createdProduct = productRepository.save(product);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct);
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody Product product) 
-    {
-        Optional<Product> optionalProduct = productRepository.findById(id);
-        if (optionalProduct.isPresent()) 
-        {
-            product.setId(id);
-            Product updatedProduct = productRepository.save(product);
-            return ResponseEntity.ok(updatedProduct);
-        } else {
-            return ResponseEntity.notFound().build();
+    @GetMapping("/search")
+    public Page<Product> searchProducts(
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "minPrice", required = false) Double minPrice,
+            @RequestParam(value = "maxPrice", required = false) Double maxPrice,
+            @RequestParam(value = "sort", defaultValue = "id") String sort,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size
+    ) {
+        Specification<Product> spec = Specification.where(null);
+        
+        if (name != null) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.like(root.get("name"), "%" + name + "%"));
         }
-    }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) 
-    {
-        Optional<Product> optionalProduct = productRepository.findById(id);
-        if (optionalProduct.isPresent()) 
+        if (minPrice != null) 
         {
-            productRepository.delete(optionalProduct.get());
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.greaterThanOrEqualTo(root.get("price"), minPrice));
         }
+
+        if (maxPrice != null) 
+        {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.lessThanOrEqualTo(root.get("price"), maxPrice));
+        }
+
+        Sort.Direction direction = Sort.Direction.ASC;
+        if (sort.startsWith("-")) 
+        {
+            direction = Sort.Direction.DESC;
+            sort = sort.substring(1);
+        }
+
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(direction, sort));
+
+        return productService.getProductsByCriteria(spec, pageRequest);
     }
 }
