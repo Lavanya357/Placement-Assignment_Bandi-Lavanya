@@ -1,0 +1,19 @@
+1. Implementation:
+
+Abstract Class: An abstract class can have both implemented and abstract methods. It can provide a default implementation for some methods and leave others as abstract, which must be implemented by the derived classes.
+Interface: An interface can only declare abstract methods, which must be implemented by any class that implements the interface. It cannot provide any method implementation.
+
+2. Inheritance:
+
+Abstract Class: A class can extend only one abstract class, as Java supports single inheritance. It provides a way to create a hierarchy of related classes.
+Interface: A class can implement multiple interfaces, allowing for multiple inheritance of behavior. It enables a class to be part of multiple type hierarchies.
+
+3. Constructors:
+
+Abstract Class: An abstract class can have constructors that are called when an instance of a derived class is created. These constructors are typically used to initialize the state of the abstract class.
+Interface: An interface cannot have constructors. It defines a contract for classes to implement but does not have its own state or instance.
+
+4. Access Modifiers:
+
+Abstract Class: Abstract classes can have different access modifiers (public, protected, or default) for their members (methods and fields).
+Interface: All methods in an interface are implicitly public. Fields in interfaces are implicitly public, static, and final.
