@@ -1,0 +1,13 @@
+1. Constructors have the same name as the class they belong to and do not have a return type (not even void).
+2. Constructors are used to initialize objects of a class.
+3. If a class does not define any constructor, Java provides a default constructor (without any parameters) automatically.
+4. If a class has one or more constructors defined, the default constructor is not provided automatically.
+5. Constructors can be overloaded, meaning a class can have multiple constructors with different parameter lists.
+6. When a subclass is created, it can explicitly call the constructor of its superclass using the super() keyword.
+7. If a constructor in the superclass has arguments, the super() call in the subclass constructor must match one of those constructors in the superclass.
+8. If the super() call is omitted in a subclass constructor, the default constructor of the superclass is invoked automatically.
+9. The super() call must be the first statement in the subclass constructor.
+
+
+
+
